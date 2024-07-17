@@ -1,0 +1,67 @@
+class Solution {
+public:
+    int solveUsingRecursion(vector<int>& nums,int prev,int curr){
+        if(curr>=nums.size()){
+            return 0;
+        }
+        int include = 0;
+        if(prev == -1 || nums[curr]>nums[prev]){
+            include = 1 + solveUsingRecursion(nums,curr,curr+1);
+        }
+        int exclude = 0 + solveUsingRecursion(nums,prev,curr+1);
+        int ans = max(include,exclude);
+        return ans;
+    }
+    int solveMemoization(vector<int>& nums,int prev,int curr, vector<vector<int> >& dp){
+        if(curr>=nums.size()){
+            return 0;
+        }
+        if(dp[prev+1][curr]!=-1){
+            return dp[prev+1][curr];
+        }
+        int include = 0;
+        if(prev == -1 || nums[curr]>nums[prev]){
+            include = 1 + solveMemoization(nums,curr,curr+1,dp);
+        }
+        int exclude = 0 + solveMemoization(nums,prev,curr+1,dp);
+        dp[prev+1][curr] = max(include,exclude);
+        return dp[prev+1][curr];
+    }
+    int solveTabulation(vector<int>& nums){
+        int n = nums.size();
+        vector<vector<int>> dp(n+1, vector<int>(n+1, 0));
+        for(int curr = n-1; curr>=0; curr--){
+            for(int prev = curr-1;prev>=-1;prev--){
+                int include = 0;
+                if(prev == -1 || nums[curr]>nums[prev]){
+                    include = 1 + dp[curr+1][curr+1];
+                }
+                    int exclude = 0 + dp[curr+1][prev+1];
+                    dp[curr][prev+1] = max(include,exclude);
+            }
+        }
+    return dp[0][0];
+    }
+    int solveTabulationSO(vector<int>& nums){
+        int n = nums.size();
+        vector<int> last(n+1,-1);
+        vector<int> next(n+1,0);
+        for(int curr = n-1; curr>=0; curr--){
+            for(int prev = curr-1;prev>=-1;prev--){
+                int include = 0;
+                if(prev == -1 || nums[curr]>nums[prev]){
+                    include = 1 + next[curr+1];
+                }
+                    int exclude = 0 + next[prev+1];
+                    last[prev+1] = max(include,exclude);
+            }
+            next = last;
+        }
+    return last[0];
+    }
+    int lengthOfLIS(vector<int>& nums) {
+        int prev = -1;
+        int curr = 0;
+        return solveTabulationSO(nums);
+    }
+};
